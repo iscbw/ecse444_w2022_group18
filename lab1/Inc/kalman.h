@@ -6,4 +6,7 @@ typedef struct kalman_state {
 	float k;	// adaptive Kalman filter gain
 } kalman_state;
 
+/*
+ * Kalman filter implemented in assembly
+ */
 extern float kalman(kalman_state* kstate, float measurement);
