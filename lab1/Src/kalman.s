@@ -7,11 +7,11 @@
 .global kalman
 
 /*
- * r4:	q
- * r5:	r
- * r6:	x
- * r7:	p
- * r8:	k
+ * s4:	q
+ * s5:	r
+ * s6:	x
+ * s7:	p
+ * s8:	k
  */
 
 kalman:	// (kalman_state* kstate, float measurement)

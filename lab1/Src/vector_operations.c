@@ -5,7 +5,7 @@
  * calculate the difference between two vectors without using cmsis
  */
 void vec_sub(float* op1, float* op2, float* result, int length) {
-	for (int i=0; i<Length; i++) {
+	for (int i=0; i<length; i++) {
 		result[i] = op1[i] - op2[i];
 	}
 }
@@ -60,7 +60,7 @@ float vec_correlation(float* in1, float* in2, int length) {
 /*
  * calculate the convolution between two vectore without using cmsis
  */
-void vec_convolution(float* in1, float* in2, float* result) {
+void vec_convolution(float* in1, float* in2, float* result, int length) {
 	for (int n = 0; n < 2*length - 1; n++) {
 		int kmin, kmax, k;
 

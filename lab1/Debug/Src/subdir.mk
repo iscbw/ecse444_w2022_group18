@@ -14,7 +14,8 @@ C_SRCS += \
 ../Src/stm32l4xx_it.c \
 ../Src/syscalls.c \
 ../Src/sysmem.c \
-../Src/system_stm32l4xx.c 
+../Src/system_stm32l4xx.c \
+../Src/vector_operations.c 
 
 OBJS += \
 ./Src/KalmanFilter.o \
@@ -24,7 +25,8 @@ OBJS += \
 ./Src/stm32l4xx_it.o \
 ./Src/syscalls.o \
 ./Src/sysmem.o \
-./Src/system_stm32l4xx.o 
+./Src/system_stm32l4xx.o \
+./Src/vector_operations.o 
 
 S_DEPS += \
 ./Src/kalman.d 
@@ -36,7 +38,8 @@ C_DEPS += \
 ./Src/stm32l4xx_it.d \
 ./Src/syscalls.d \
 ./Src/sysmem.d \
-./Src/system_stm32l4xx.d 
+./Src/system_stm32l4xx.d \
+./Src/vector_operations.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -48,7 +51,7 @@ Src/%.o: ../Src/%.s Src/subdir.mk
 clean: clean-Src
 
 clean-Src:
-	-$(RM) ./Src/KalmanFilter.d ./Src/KalmanFilter.o ./Src/kalman.d ./Src/kalman.o ./Src/main.d ./Src/main.o ./Src/stm32l4xx_hal_msp.d ./Src/stm32l4xx_hal_msp.o ./Src/stm32l4xx_it.d ./Src/stm32l4xx_it.o ./Src/syscalls.d ./Src/syscalls.o ./Src/sysmem.d ./Src/sysmem.o ./Src/system_stm32l4xx.d ./Src/system_stm32l4xx.o
+	-$(RM) ./Src/KalmanFilter.d ./Src/KalmanFilter.o ./Src/kalman.d ./Src/kalman.o ./Src/main.d ./Src/main.o ./Src/stm32l4xx_hal_msp.d ./Src/stm32l4xx_hal_msp.o ./Src/stm32l4xx_it.d ./Src/stm32l4xx_it.o ./Src/syscalls.d ./Src/syscalls.o ./Src/sysmem.d ./Src/sysmem.o ./Src/system_stm32l4xx.d ./Src/system_stm32l4xx.o ./Src/vector_operations.d ./Src/vector_operations.o
 
 .PHONY: clean-Src
 

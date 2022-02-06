@@ -83,11 +83,15 @@ int main(void)
 
   /* Initialize all configured peripherals */
   /* USER CODE BEGIN 2 */
+
+  // part 1 demo
   struct kalman_state testState = {0.1, 0.1, 5.0, 0.1, 0};
   float output[5];
   for (int i=0; i<5; i++) {
-	  output[i] = kalman(&testState, (float)i);
+	  output[i] = kalman(&testState, (float)i);	// execute kalman filter with testState and i as measurement input
   }
+  // output should now contain 1.67, 1.25, 1.71, 2.5, 3.43
+
   /* USER CODE END 2 */
 
   /* Infinite loop */

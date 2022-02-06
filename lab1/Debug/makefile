@@ -60,8 +60,8 @@ all: main-build
 main-build: lab1_group18.elf secondary-outputs
 
 # Tool invocations
-lab1_group18.elf: $(OBJS) $(USER_OBJS) /Users/bowencui/Documents/444lab/lab1/lab1_group7/STM32L4S5VITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "lab1_group18.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/Users/bowencui/Documents/444lab/lab1/lab1_group7/STM32L4S5VITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="lab1_group18.map" -Wl,--gc-sections -static -L"/Users/bowencui/Documents/444lab/lab1/lab1_group7/lib" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+lab1_group18.elf: $(OBJS) $(USER_OBJS) /Users/bowencui/Documents/444lab/ecse444_w2022_group18/lab1/STM32L4S5VITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "lab1_group18.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/Users/bowencui/Documents/444lab/ecse444_w2022_group18/lab1/STM32L4S5VITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="lab1_group18.map" -Wl,--gc-sections -static -L"/Users/bowencui/Documents/444lab/ecse444_w2022_group18/lab1/lib" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

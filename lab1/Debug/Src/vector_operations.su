@@ -1,0 +1,5 @@
+vector_operations.c:7:6:vec_sub	32	static
+vector_operations.c:16:7:vec_mean	24	static
+vector_operations.c:29:7:vec_sd	32	static
+vector_operations.c:43:7:vec_correlation	48	static
+vector_operations.c:63:6:vec_convolution	40	static

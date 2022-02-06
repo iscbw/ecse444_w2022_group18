@@ -1,1 +1,3 @@
-KalmanFilter.c:3:5:Kalmanfilter	40	static
+KalmanFilter.c:8:5:Kalmanfilter	40	static
+KalmanFilter.c:18:5:Kalmanfilter_c	40	static
+KalmanFilter.c:28:7:kalman_c	16	static
