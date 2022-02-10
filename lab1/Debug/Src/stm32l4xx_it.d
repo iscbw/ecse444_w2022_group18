@@ -27,7 +27,8 @@ Src/stm32l4xx_it.o: ../Src/stm32l4xx_it.c ../Inc/main.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr_ex.h \
  ../Inc/arm_math.h ../Drivers/CMSIS/Include/cmsis_compiler.h \
- ../Inc/kalman.h ../Inc/stm32l4xx_it.h
+ ../Inc/kalman.h ../Inc/KalmanFilter.h ../Inc/vector_operations.h \
+ ../Inc/stm32l4xx_it.h
 
 ../Inc/main.h:
 
@@ -90,5 +91,9 @@ Src/stm32l4xx_it.o: ../Src/stm32l4xx_it.c ../Inc/main.h \
 ../Drivers/CMSIS/Include/cmsis_compiler.h:
 
 ../Inc/kalman.h:
+
+../Inc/KalmanFilter.h:
+
+../Inc/vector_operations.h:
 
 ../Inc/stm32l4xx_it.h:

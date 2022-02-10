@@ -40,21 +40,13 @@ float vec_sd(float* input, int length) {
 /*
  * calculate the correlation between two vectors without using cmsis
  */
-float vec_correlation(float* in1, float* in2, int length) {
-	float mean1 = vec_mean(in1, length);
-	float mean2 = vec_mean(in2, length);
-	float covar = 0;
-
-	for (int i=0; i<length; i++) {
-		covar += (in1[i]-mean1) * (in2[i]-mean2);
+void vec_correlation(float* in1, float* in2, float* result, int length) {
+	for (int n = 0; n < 2*length - 1; n++) {
+		result[n] = 0;
+		for (int k = 0; k < length; k++) {
+			result[n] += (k < length ? in1[k] : 0) * ((length-1-n+k) < length ? in2[(length-1-n+k)] : 0);
+		}
 	}
-
-	covar /= length;
-
-	float sd1 = vec_sd(in1, length);
-	float sd2 = vec_sd(in2, length);
-
-	return covar/(sd1*sd2);
 }
 
 /*
@@ -62,15 +54,9 @@ float vec_correlation(float* in1, float* in2, int length) {
  */
 void vec_convolution(float* in1, float* in2, float* result, int length) {
 	for (int n = 0; n < 2*length - 1; n++) {
-		int kmin, kmax, k;
-
 		result[n] = 0;
-
-		kmin = (n >= length - 1) ? n - (length - 1) : 0;
-		kmax = (n < length - 1) ? n : length - 1;
-
-		for (k = kmin; k <= kmax; k++) {
-			result[n] += in1[k] * in2[n - k];
+		for (int k = 0; k < length; k++) {
+			result[n] += (k < length ? in1[k] : 0) * (n - k < length ? in2[n - k] : 0);
 		}
 	}
 }

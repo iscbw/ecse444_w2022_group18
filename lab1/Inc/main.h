@@ -36,6 +36,8 @@ extern "C" {
 
 #include "arm_math.h"
 #include "kalman.h"
+#include "KalmanFilter.h"
+#include "vector_operations.h"
 
 /* USER CODE END Includes */
 
