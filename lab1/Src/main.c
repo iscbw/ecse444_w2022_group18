@@ -101,6 +101,7 @@ int main(void)
 
   float asm_output[array_len];
   float c_output[array_len];
+  float cmsis_output[array_len];
 
   // results
   float c_sub_results[array_len];
@@ -117,12 +118,15 @@ int main(void)
 
   struct kalman_state state_asm = {0.1, 0.5, 10.0, 0.1, 0};
   struct kalman_state state_c = {0.1, 0.5, 10.0, 0.1, 0};
+  struct kalman_state state_cmsis = {0.1, 0.5, 10.0, 0.1, 0};
 
   // get result array for both asm and c functions
   ITM_Port32(31) = 1;	// 1: Asm Kalman Filter
   Kalmanfilter(test_array, asm_output, &state_asm, array_len);
   ITM_Port32(31) = 2;	// 2: C Kalman filter
   Kalmanfilter_c(test_array, c_output, &state_c, array_len);
+  ITM_Port32(31) = 14;
+  Kalmanfilter_cmsis(test_array, cmsis_output, &state_cmsis, array_len);
 
   // plain c function test
   ITM_Port32(31) = 3;	// 3: c difference
