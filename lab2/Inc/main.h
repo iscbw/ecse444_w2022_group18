@@ -51,7 +51,7 @@ extern "C" {
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
-
+void assert_button_flag();
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */

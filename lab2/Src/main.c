@@ -31,6 +31,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define ITM_Port32(n) (*((volatile unsigned long *) (0xE0000000+4*n)))
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -40,7 +41,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
-
+int flag_button = 0;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -55,7 +56,9 @@ static void MX_ADC1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void assert_button_flag() {
+	flag_button = 1;
+}
 /* USER CODE END 0 */
 
 /**
@@ -88,6 +91,22 @@ int main(void)
   MX_GPIO_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
+  uint16_t adc_reading = 0;
+  uint16_t vref_reading = 0;
+  double vref = 0.0;
+  double vol_reading = 0.0;
+  double temp = 0.0;
+
+  const uint16_t * ts_cal1 = 0x1fff75a8;
+  const uint16_t * ts_cal2 = 0x1fff75ca;
+  const uint16_t * vrefint = 0x1fff75aa;
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
+  sConfig.SingleDiff = ADC_SINGLE_ENDED;
+  sConfig.OffsetNumber = ADC_OFFSET_NONE;
+  sConfig.Offset = 0;
 
   /* USER CODE END 2 */
 
@@ -95,6 +114,30 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  // if button is pushed, read and print temperature value.
+	  if (flag_button == 1) {
+		  flag_button = 0;
+		  // reference voltage
+		  sConfig.Channel = ADC_CHANNEL_VREFINT;
+		  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+		  HAL_ADC_Start(&hadc1);
+		  HAL_ADC_PollForConversion(&hadc1, 10);
+		  vref_reading = HAL_ADC_GetValue(&hadc1);
+		  vref = (*vrefint * 3.0) / vref_reading;
+		  printf("Reference voltage: %f\n", vref);
+
+		  // temperature
+		  sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+		  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+		  HAL_ADC_Start(&hadc1);
+		  HAL_ADC_PollForConversion(&hadc1, 10);
+		  adc_reading = HAL_ADC_GetValue(&hadc1);
+		  printf("Temperature ADC reading: %u\n", adc_reading);
+		  vol_reading = adc_reading * (vref/4096);
+		  printf("Temperature Voltage reading: %f\n", vol_reading);
+		  temp = (100.0 / (*ts_cal2 - *ts_cal1)) * (adc_reading * (vref/3.0) - (double)(*ts_cal1)) + 30.0;
+		  printf("Measured Temperature: %fC\n\n");
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -243,7 +286,10 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+int __io_putchar(int ch) {
+	ITM_SendChar(ch);
+	return(ch);
+}
 /* USER CODE END 4 */
 
 /**
