@@ -112,7 +112,7 @@ int main(void)
   // ADC configuration
   ADC_ChannelConfTypeDef sConfig = {0};
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_47CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_247CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
@@ -154,10 +154,8 @@ int main(void)
 			HAL_ADC_PollForConversion(&hadc1, 10);
 			adc_reading = HAL_ADC_GetValue(&hadc1);
 			printf("Temperature ADC reading: %u\n", adc_reading);
-			vol_reading = adc_reading * (vref/4096);
-			printf("Temperature Voltage reading: %fV\n", vol_reading);
 			temp = (100.0 / (*ts_cal2 - *ts_cal1)) * (adc_reading * (vref/3.0) - (double)(*ts_cal1)) + 30.0;
-			printf("Measured Temperature: %fC\n\n");
+			printf("Measured Temperature: %fC\n\n", temp);
 		}
 	}
     /* USER CODE END WHILE */
