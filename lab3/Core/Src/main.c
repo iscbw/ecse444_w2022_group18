@@ -48,8 +48,9 @@ TIM_HandleTypeDef htim2;
 /* USER CODE BEGIN PV */
 const int wave_type = 3;
 volatile uint32_t cur_value;
-uint32_t sine_array[SAMPLING_RATE];
-uint16_t counter = 0;
+uint16_t sine_array[512];
+volatile uint32_t counter = 0;
+uint32_t counter_top = 0;
 
 /* USER CODE END PV */
 
@@ -60,7 +61,7 @@ static void MX_DAC1_Init(void);
 static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
-
+uint32_t sine_generate(float32_t freq, uint16_t* buffer, uint32_t length);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -100,12 +101,13 @@ int main(void)
   MX_DMA_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
+
 
 
   switch (wave_type) {
 
   case 0: {	// sawtooth
+	  HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
 	  while (1) {
 		  if (cur_value >= 4095) {
 			  cur_value = 0;
@@ -118,6 +120,7 @@ int main(void)
   } break;
 
   case 1: {	// triangle
+	  HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
 	  while (1) {
 		  // 1st half
 		  for ( ; cur_value < 4000; cur_value += 500) {
@@ -134,8 +137,9 @@ int main(void)
   } break;
 
   case 2: {	// timer driven
+	  HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
 	  // generate 1s of buffer
-	  generate_lut(1500.0);
+	  counter_top = sine_generate(1500.0, sine_array, 512);
 	  // start timer & interrupt
 	  HAL_TIM_Base_Start_IT(&htim2);
 
@@ -145,32 +149,27 @@ int main(void)
   } break;
 
   case 3: {	// DMA driven
-	  // reconfigure dac
-	  HAL_DAC_Stop(&hdac1, DAC_CHANNEL_1);
-	  DAC_ChannelConfTypeDef sConfig = {0};
-	  sConfig.DAC_SampleAndHold = DAC_SAMPLEANDHOLD_DISABLE;
-	  sConfig.DAC_Trigger = DAC_TRIGGER_T2_TRGO;
-	  sConfig.DAC_HighFrequency = DAC_HIGH_FREQUENCY_INTERFACE_MODE_DISABLE;
-	  sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
-	  sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_DISABLE;
-	  sConfig.DAC_UserTrimming = DAC_TRIMMING_FACTORY;
-	  HAL_DAC_ConfigChannel(&hdac1, &sConfig, DAC_CHANNEL_1);
-	  generate_lut(1500.0);
-	  // restart dac in dma mode
-	  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, SAMPLING_RATE, DAC_ALIGN_12B_R);
 	  // start timer
 	  HAL_TIM_Base_Start(&htim2);
+	  uint32_t sample_size = 0;
+
 	  // generate sine wave lut
 	  while (1) {
-
+		  sample_size = sine_generate(1046.50, sine_array, 512);
+		  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, sample_size, DAC_ALIGN_12B_R);
+		  HAL_Delay(500);
+		  HAL_DAC_Stop_DMA(&hdac1, DAC_CHANNEL_1);
+		  sample_size = sine_generate(1318.51, sine_array, 512);
+		  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, sample_size, DAC_ALIGN_12B_R);
+		  HAL_Delay(500);
+		  HAL_DAC_Stop_DMA(&hdac1, DAC_CHANNEL_1);
+		  sample_size = sine_generate(1567.98, sine_array, 512);
+		  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, sample_size, DAC_ALIGN_12B_R);
+		  HAL_Delay(500);
+		  HAL_DAC_Stop_DMA(&hdac1, DAC_CHANNEL_1);
 	  }
   } break;
 
-  default: {
-	  while (1) {
-
-	  }
-  }
 
   }
   /* USER CODE END 2 */
@@ -178,7 +177,9 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-  {}
+  {
+
+  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -260,7 +261,11 @@ static void MX_DAC1_Init(void)
   /** DAC channel OUT1 config
   */
   sConfig.DAC_SampleAndHold = DAC_SAMPLEANDHOLD_DISABLE;
-  sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+if (wave_type == 3) {
+	sConfig.DAC_Trigger = DAC_TRIGGER_T2_TRGO;
+} else {
+	sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+}
   sConfig.DAC_HighFrequency = DAC_HIGH_FREQUENCY_INTERFACE_MODE_DISABLE;
   sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
   sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_DISABLE;
@@ -331,9 +336,9 @@ static void MX_DMA_Init(void)
   __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
-  /* DMA1_Channel4_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
 }
 
@@ -374,10 +379,13 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void generate_lut(float32_t freq) {
-	for (int i=0; i<SAMPLING_RATE; i++) {
-		sine_array[i] = (uint32_t) round(3000.0 * (arm_sin_f32(2 * PI * (((float32_t)i)/((float32_t)SAMPLING_RATE)) * freq) + 0.6));
+uint32_t sine_generate(float32_t freq, uint16_t* buffer, uint32_t length) {
+	uint32_t size = round((1.0 / freq) / (1.0 / (float32_t)SAMPLING_RATE));
+	if (size>length) return 0;
+	for (uint32_t i=0; i<size; i++) {
+		buffer[i] = (uint16_t) round(3000.0 * (arm_sin_f32(2 * PI * (float32_t)i / (float32_t)size) + 0.6));
 	}
+	return size;
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
@@ -391,17 +399,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef * htim) {
-	if (htim == &htim2) {
-		if (wave_type == 2) {
-			if (counter >= SAMPLING_RATE) {
-				counter = 0;
-			} else {
-				counter++;
-			}
-			HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, sine_array[counter]);
+	if (wave_type == 2) {
+		if (counter >= counter_top) {
+			counter = 0;
 		} else {
-
+			counter++;
 		}
+		HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, (uint32_t)(sine_array[counter]));
 	}
 }
 /* USER CODE END 4 */
