@@ -46,6 +46,7 @@ DMA_HandleTypeDef hdma_dac1_ch1;
 TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
+// wave_type should be changed for each part of the lab. 0=sawtooth 1=triangle 2=timer 3=dma
 const int wave_type = 3;
 volatile uint32_t cur_value;
 uint16_t sine_array[512];
@@ -96,6 +97,7 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  // order is very very very important!
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_DAC1_Init();
@@ -383,11 +385,14 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/*
+ * Generate a period of sine wave with frequency freq. Returns the size of period.
+ */
 uint32_t sine_generate(float32_t freq, uint16_t* buffer, uint32_t length) {
 	uint32_t size = round((1.0 / freq) / (1.0 / (float32_t)SAMPLING_RATE));
 	if (size>length) return 0;
 	for (uint32_t i=0; i<size; i++) {
-		buffer[i] = (uint16_t) round(3000.0 * (arm_sin_f32(2 * PI * (float32_t)i / (float32_t)size) + 0.6));
+		buffer[i] = (uint16_t) round(1700.0 * (arm_sin_f32(2 * PI * (float32_t)i / (float32_t)size) + 1.1));
 	}
 	return size;
 }

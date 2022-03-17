@@ -752,11 +752,11 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
  80009e6:	f000 f907 	bl	8000bf8 <SystemClock_Config>
-  /* USER CODE BEGIN SysInit */
 
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  // order is very very very important!
   MX_GPIO_Init();
  80009ea:	f000 fa09 	bl	8000e00 <MX_GPIO_Init>
   MX_DMA_Init();
@@ -1538,6 +1538,9 @@ static void MX_GPIO_Init(void)
 08000ec8 <sine_generate>:
 
 /* USER CODE BEGIN 4 */
+/*
+ * Generate a period of sine wave with frequency freq. Returns the size of period.
+ */
 uint32_t sine_generate(float32_t freq, uint16_t* buffer, uint32_t length) {
  8000ec8:	b590      	push	{r4, r7, lr}
  8000eca:	b087      	sub	sp, #28
@@ -1583,7 +1586,7 @@ uint32_t sine_generate(float32_t freq, uint16_t* buffer, uint32_t length) {
  8000f2c:	2300      	movs	r3, #0
  8000f2e:	617b      	str	r3, [r7, #20]
  8000f30:	e03e      	b.n	8000fb0 <sine_generate+0xe8>
-		buffer[i] = (uint16_t) round(3000.0 * (arm_sin_f32(2 * PI * (float32_t)i / (float32_t)size) + 0.6));
+		buffer[i] = (uint16_t) round(1700.0 * (arm_sin_f32(2 * PI * (float32_t)i / (float32_t)size) + 1.1));
  8000f32:	697b      	ldr	r3, [r7, #20]
  8000f34:	ee07 3a90 	vmov	s15, r3
  8000f38:	eef8 7a67 	vcvt.f32.u32	s15, s15
@@ -1643,10 +1646,10 @@ uint32_t sine_generate(float32_t freq, uint16_t* buffer, uint32_t length) {
  8000fc4:	f3af 8000 	nop.w
  8000fc8:	c3ece2a5 	.word	0xc3ece2a5
  8000fcc:	3ef5d867 	.word	0x3ef5d867
- 8000fd0:	33333333 	.word	0x33333333
- 8000fd4:	3fe33333 	.word	0x3fe33333
+ 8000fd0:	9999999a 	.word	0x9999999a
+ 8000fd4:	3ff19999 	.word	0x3ff19999
  8000fd8:	00000000 	.word	0x00000000
- 8000fdc:	40a77000 	.word	0x40a77000
+ 8000fdc:	409a9000 	.word	0x409a9000
  8000fe0:	3ff00000 	.word	0x3ff00000
  8000fe4:	40c90fdb 	.word	0x40c90fdb
 
