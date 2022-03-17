@@ -97,8 +97,8 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DAC1_Init();
   MX_DMA_Init();
+  MX_DAC1_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
@@ -139,32 +139,36 @@ int main(void)
   case 2: {	// timer driven
 	  HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
 	  // generate 1s of buffer
-	  counter_top = sine_generate(1500.0, sine_array, 512);
+	  // counter_top = sine_generate(1500.0, sine_array, 512);
 	  // start timer & interrupt
 	  HAL_TIM_Base_Start_IT(&htim2);
 
 	  while (1) {
-		  // do nothing
+		  counter_top = sine_generate(1046.50, sine_array, 512);
+		  HAL_Delay(500);
+		  counter_top = sine_generate(1318.51, sine_array, 512);
+		  HAL_Delay(500);
+		  counter_top = sine_generate(1567.98, sine_array, 512);
+		  HAL_Delay(500);
 	  }
   } break;
 
   case 3: {	// DMA driven
 	  // start timer
 	  HAL_TIM_Base_Start(&htim2);
-	  uint32_t sample_size = 0;
 
 	  // generate sine wave lut
 	  while (1) {
-		  sample_size = sine_generate(1046.50, sine_array, 512);
-		  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, sample_size, DAC_ALIGN_12B_R);
+		  counter_top = sine_generate(1046.50, sine_array, 512);
+		  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, counter_top, DAC_ALIGN_12B_R);
 		  HAL_Delay(500);
 		  HAL_DAC_Stop_DMA(&hdac1, DAC_CHANNEL_1);
-		  sample_size = sine_generate(1318.51, sine_array, 512);
-		  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, sample_size, DAC_ALIGN_12B_R);
+		  counter_top = sine_generate(1318.51, sine_array, 512);
+		  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, counter_top, DAC_ALIGN_12B_R);
 		  HAL_Delay(500);
 		  HAL_DAC_Stop_DMA(&hdac1, DAC_CHANNEL_1);
-		  sample_size = sine_generate(1567.98, sine_array, 512);
-		  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, sample_size, DAC_ALIGN_12B_R);
+		  counter_top = sine_generate(1567.98, sine_array, 512);
+		  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, counter_top, DAC_ALIGN_12B_R);
 		  HAL_Delay(500);
 		  HAL_DAC_Stop_DMA(&hdac1, DAC_CHANNEL_1);
 	  }
@@ -261,11 +265,11 @@ static void MX_DAC1_Init(void)
   /** DAC channel OUT1 config
   */
   sConfig.DAC_SampleAndHold = DAC_SAMPLEANDHOLD_DISABLE;
-if (wave_type == 3) {
+  if (wave_type == 3) {
 	sConfig.DAC_Trigger = DAC_TRIGGER_T2_TRGO;
-} else {
+  } else {
 	sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
-}
+  }
   sConfig.DAC_HighFrequency = DAC_HIGH_FREQUENCY_INTERFACE_MODE_DISABLE;
   sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
   sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_DISABLE;
