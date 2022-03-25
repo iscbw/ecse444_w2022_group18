@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (9-2020-q2-update)
+# Toolchain: GNU Tools for STM32 (10.3-2021.10)
 ################################################################################
 
 -include ../makefile.init
@@ -43,14 +43,14 @@ BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ART
 EXECUTABLES += \
 lab1_group18.elf \
 
+MAP_FILES += \
+lab1_group18.map \
+
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
 lab1_group18.list \
-
-OBJCOPY_BIN += \
-lab1_group18.bin \
 
 
 # All Target
@@ -60,7 +60,7 @@ all: main-build
 main-build: lab1_group18.elf secondary-outputs
 
 # Tool invocations
-lab1_group18.elf: $(OBJS) $(USER_OBJS) /Users/bowencui/Documents/444lab/ecse444_w2022_group18/lab1/STM32L4S5VITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+lab1_group18.elf lab1_group18.map: $(OBJS) $(USER_OBJS) /Users/bowencui/Documents/444lab/ecse444_w2022_group18/lab1/STM32L4S5VITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	arm-none-eabi-gcc -o "lab1_group18.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/Users/bowencui/Documents/444lab/ecse444_w2022_group18/lab1/STM32L4S5VITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="lab1_group18.map" -Wl,--gc-sections -static -L"/Users/bowencui/Documents/444lab/ecse444_w2022_group18/lab1/lib" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
@@ -75,17 +75,12 @@ lab1_group18.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-lab1_group18.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "lab1_group18.bin"
-	@echo 'Finished building: $@'
-	@echo ' '
-
 # Other Targets
 clean:
-	-$(RM) default.size.stdout lab1_group18.bin lab1_group18.elf lab1_group18.list
+	-$(RM) default.size.stdout lab1_group18.elf lab1_group18.list lab1_group18.map
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_BIN)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
 
 fail-specified-linker-script-missing:
 	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'

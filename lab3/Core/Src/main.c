@@ -46,12 +46,13 @@ DMA_HandleTypeDef hdma_dac1_ch1;
 TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
-// wave_type should be changed for each part of the lab. 0=sawtooth 1=triangle 2=timer 3=dma
-const int wave_type = 3;
+// wave_type should be changed for each part of the lab. 0=sawtooth 1=triangle 2=timer 3=dma 4=simple sine wave
+const int wave_type = 4;
 volatile uint32_t cur_value;
 uint16_t sine_array[512];
 volatile uint32_t counter = 0;
 uint32_t counter_top = 0;
+int arpeggio = 0;
 
 /* USER CODE END PV */
 
@@ -138,6 +139,17 @@ int main(void)
 	  }
   } break;
 
+  case 4: {	// sine wave
+	  HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
+	  while (1) {
+		  for (int i=0; i<16; i++) {
+			  cur_value = (uint32_t) round(1700 * (arm_sin_f32(2*PI*((float32_t)i/16.0)) + 1.1));
+			  HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, cur_value);
+			  HAL_Delay(1);
+		  }
+	  }
+  } break;
+
   case 2: {	// timer driven
 	  HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
 	  // generate 1s of buffer
@@ -158,21 +170,11 @@ int main(void)
   case 3: {	// DMA driven
 	  // start timer
 	  HAL_TIM_Base_Start(&htim2);
-
+	  counter_top = sine_generate(1046.50, sine_array, 512);
+	  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, counter_top, DAC_ALIGN_12B_R);
 	  // generate sine wave lut
 	  while (1) {
-		  counter_top = sine_generate(1046.50, sine_array, 512);
-		  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, counter_top, DAC_ALIGN_12B_R);
-		  HAL_Delay(500);
-		  HAL_DAC_Stop_DMA(&hdac1, DAC_CHANNEL_1);
-		  counter_top = sine_generate(1318.51, sine_array, 512);
-		  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, counter_top, DAC_ALIGN_12B_R);
-		  HAL_Delay(500);
-		  HAL_DAC_Stop_DMA(&hdac1, DAC_CHANNEL_1);
-		  counter_top = sine_generate(1567.98, sine_array, 512);
-		  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, counter_top, DAC_ALIGN_12B_R);
-		  HAL_Delay(500);
-		  HAL_DAC_Stop_DMA(&hdac1, DAC_CHANNEL_1);
+
 	  }
   } break;
 
@@ -401,6 +403,29 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	switch (GPIO_Pin) {
 	case GPIO_PIN_13: {
 		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
+
+		if (wave_type == 3) {
+			switch (arpeggio) {
+			case 0: {
+				HAL_DAC_Stop_DMA(&hdac1, DAC_CHANNEL_1);
+				counter_top = sine_generate(1318.51, sine_array, 512);
+				HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, counter_top, DAC_ALIGN_12B_R);
+				arpeggio = 1;
+			} break;
+			case 1: {
+				HAL_DAC_Stop_DMA(&hdac1, DAC_CHANNEL_1);
+				counter_top = sine_generate(1567.98, sine_array, 512);
+				HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, counter_top, DAC_ALIGN_12B_R);
+				arpeggio = 2;
+			} break;
+			case 2: {
+				HAL_DAC_Stop_DMA(&hdac1, DAC_CHANNEL_1);
+				counter_top = sine_generate(1046.50, sine_array, 512);
+				HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, sine_array, counter_top, DAC_ALIGN_12B_R);
+				arpeggio = 0;
+			}
+			}
+		}
 	} break;
 	default: {}
 
