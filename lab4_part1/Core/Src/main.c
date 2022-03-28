@@ -67,17 +67,6 @@ static uint16_t str_buffer_size(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static uint16_t str_buffer_size() {
-	uint16_t buf_size = 0;
-	for (int i=0; i<256; i++) {
-		buf_size++;
-		if (uart_buffer[i] == 0) {
-			return buf_size;
-		}
-	}
-	return (uint16_t) sizeof(uart_buffer);
-}
-
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == GPIO_PIN_13) {
 		cur_sensor++;
@@ -88,7 +77,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef * htim) {
-	if (1) {
+	if (htim->Instance == TIM2) {
 		memset(uart_buffer, 0, 100);
 		switch (cur_sensor) {
 		case 0: {
